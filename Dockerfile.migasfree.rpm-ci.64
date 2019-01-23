@@ -1,0 +1,26 @@
+# to build migasfree-client and  migasfree-play in centos 64 bits
+# include a migasfree-client to upload packages to a migasfree-server
+
+FROM centos:7
+
+MAINTAINER Alberto Gacías
+
+ENV MIGASFREE_CLIENT_VERSION "4.16"
+ENV NODE_VERSION="v0.10.33"
+ENV USER "root"
+
+# ENV GIT_SSL_NO_VERIFY "true"
+# COPY ca-zgz.zaragoza.es.crt /usr/share/ca-certificates/ca-zgz.zaragoza.es.crt
+
+RUN yum update -y \
+    && yum -y upgrade ca-certificates \
+    && yum install -y epel-release \
+    && yum-config-manager --save --setopt=epel.sslverify=False >/dev/null \
+    && yum install -y rpmdevtools git gettext wget git python-minimal npm \
+    && git clone https://github.com/migasfree/migasfree-client.git \
+    && cd migasfree-client \
+    && git checkout $MIGASFREE_CLIENT_VERSION \
+    && cd bin \
+    && ./create-package \
+    && cd ../dist \
+    && yum install -y *.rpm

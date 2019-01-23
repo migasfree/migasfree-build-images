@@ -1,0 +1,9 @@
+before_script:
+  - docker info
+
+build_images:
+  script:
+    - docker build . -f ./Dockerfile.migasfree.deb-ci.32 -t migasfree/deb-ci:32
+    - docker build . -f ./Dockerfile.migasfree.deb-ci.64 -t migasfree/deb-ci:64
+    - docker build . -f ./Dockerfile.migasfree.rpm-ci.64 -t migasfree/rpm-ci:64
+   

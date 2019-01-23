@@ -1,0 +1,36 @@
+# to build migasfree-client and  migasfree-play in DEBIAN 32 bits
+# include a migasfree-client to upload packages to a migasfree-server
+
+FROM i386/debian:wheezy
+
+MAINTAINER Alberto Gacías
+
+ENV MIGASFREE_CLIENT_VERSION "4.16"
+ENV NODE_VERSION="v0.10.33"
+ENV USER "root"
+
+# ENV GIT_SSL_NO_VERIFY "true"
+# COPY ca-zgz.zaragoza.es.crt /usr/share/ca-certificates/ca-zgz.zaragoza.es.crt
+
+RUN apt-get update \
+    && apt-get install -y apt-utils \
+    && apt-get install -y devscripts gcc build-essential debhelper python-stdeb \
+    && apt-get install -y git-core ca-certificates curl openssl libssl-dev wget \
+    && update-ca-certificates \
+    && git clone https://github.com/migasfree/migasfree-client.git \
+    && cd migasfree-client \
+    && git checkout $MIGASFREE_CLIENT_VERSION \
+    && cd bin \
+    && ./create-package \
+    && cd ../deb_dist \
+    && dpkg -i migasfree-client_*_all.deb || : \
+    && apt-get -y -f install \
+    && git clone https://github.com/joyent/node.git \
+    && cd node \
+    && git checkout $NODE_VERSION \
+    && ./configure --openssl-libpath=/usr/lib/ssl \
+    && make \
+    && make install \
+    && cd - \
+    && rm -rf node \
+    && rm -rf /var/lib/apt/lists/*
